@@ -233,11 +233,13 @@
 								    limpiar();
 								    $('#total').html("$"+' '+total);
 							        verificar();
-							        $('#stock').val(stock-cantidad);
+							        //$('#stock').val(stock-cantidad);
 							        $('#carrito').append(tfila);
+							        stock -= cantidad;
+							        producto.val(idproducto+"_"+stock+"_"+p_venta);
 
 					   }
-					   else if(esProductoAgregado){
+					   else if(cantidad<=stock && esProductoAgregado){
 					   	    stock -= cantidad;
 					   		//Actualiza el atributo valor del option seleccionado
 					   		producto.val(idproducto+"_"+stock+"_"+p_venta);
@@ -252,9 +254,10 @@
 
 					   		var SubtotalAnterior = fila.find("[name='tdSubtotal']").find("input").first().val();
 					   		var pocisionSubtotal = fila.find("[name='tdSubtotal']").find("input").first().attr("name");
+					   		var nuevoSubtotal = parseInt(SubtotalAnterior) + (cantidad*p_venta);
 
 					   		fila.find("[name='tdSubtotal']").html(
-					   			'<td name="tdSubtotal"><input type="hidden" name="'+pocisionSubtotal+'" value="'+ (parseInt(SubtotalAnterior) + parseInt(subtotal))+'" id="subtotals">'+ (parseInt(SubtotalAnterior) + parseInt(subtotal))+'</td>');
+					   			'<td name="tdSubtotal"><input type="hidden" name="'+pocisionSubtotal+'" value="'+ nuevoSubtotal+'" id="subtotals">'+nuevoSubtotal+'</td>');
 
                              limpiar();
                              $('#total').html("$"+' '+total);
@@ -279,6 +282,8 @@
 				                   });
 					   	
 					   }
+
+					   $('#stock').val(stock);
 
  				}else
  				{
@@ -336,13 +341,27 @@
 
      function eliminar(cont,r)
      {  
-     	 
-     	 total=total-subtotal[cont];
-     	  //console.log(stockm)
-     	 //cant=$('#cantidadc').val();
-     	 //$('#stock').val(r+cant);
-     	 $('#total').html("$"+' '+total);
-     	 $('#fila'+cont).remove();
+   		var idProducto = $('#fila'+cont).attr('data-id');
+   		var producto = $('#producto').find("[data-id='"+idProducto+"']").first();
+   	    var valores = producto.val().split('_');
+	   	var stock=parseInt(valores[1]);
+	   	var p_venta=parseInt(valores[2]);
+   		var fila = $("#carrito > tbody").find("[data-id='"+idProducto+"']").first('tr');
+   		var cantidadABorrar = fila.find("[name='tdCantidad']").find("input").first().val();
+	   	stock += parseInt(cantidadABorrar);
+	   	producto.val(idProducto+"_"+stock+"_"+p_venta);
+
+	   	if($('#producto option:selected').attr('data-id') == idProducto){
+	   		$('#stock').val(stock);
+	   	}
+	   	var subtotal = parseInt(fila.find("[name='tdSubtotal']").first().find("input").first().val());
+
+		total=total-subtotal;
+		//console.log(stockm)
+		//cant=$('#cantidadc').val();
+		//$('#stock').val(r+cant);
+		$('#total').html("$"+' '+total);
+		fila.remove();
 
      	 verificar();
      }
