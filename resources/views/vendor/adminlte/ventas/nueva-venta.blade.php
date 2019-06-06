@@ -215,56 +215,47 @@
 
 		    var cantidad=parseInt($('#cantidad').val());
 
-
-		   	 	subtotal[contador]=(cantidad*p_venta);
-				total=total+subtotal[contador];
-				var totalFilas = $('#carrito > tbody').children('tr').length;
+			var totalFilas = $('#carrito > tbody').children('tr').length;
 
  			if (idproducto!="-Seleccione el producto por favor-" && idproducto!="") 
  			{
  				if ( cantidad!="" &&cantidad>0) 
  				{
-			 		if(cantidad<=stock && !esProductoAgregado)
-					   {  
-                            
-	                       
-	                       		var tfila='<tr class="selected" data-id="'+idproducto+'" id="fila'+contador+'"><td><input type="hidden" name="productos['+totalFilas+'][idProducto]" value="'+idproducto+'">'+producto.text()+'</td><td name="tdCantidad"><input type="hidden" name="productos['+totalFilas+'][cantidad]" value="'+cantidad+'" id="cantidadc">'+cantidad+'</td><td><input type="hidden" name="productos['+totalFilas+'][P_Venta]" value="'+p_venta+'" >'+p_venta+'</td><td name="tdSubtotal"><input type="hidden" name="subtotal_ob" value="'+subtotal[contador]+'" id="subtotals">'+subtotal[contador]+'</td><td><button type="button" class="btn btn-danger" onclick="eliminar('+contador+');"><li class="fa fa-trash"></li></button></td></tr>';
+			 		if(cantidad<=stock)
+					   {
+			   				stock -= cantidad;
+					    	producto.val(idproducto+"_"+stock+"_"+p_venta);
+                            var SubtotalAnterior = 0;
+                            $('#stock').val(stock);
+					   		if (!esProductoAgregado) {
+	                       		var tfila='<tr class="selected" data-id="'+idproducto+'" id="fila'+contador+'"><td><input type="hidden" name="productos['+totalFilas+'][idProducto]" value="'+idproducto+'">'+producto.text()+'</td><td name="tdCantidad"><input type="hidden" name="productos['+totalFilas+'][cantidad]" value="'+cantidad+'" id="cantidadc">'+cantidad+'</td><td><input type="hidden" name="productos['+totalFilas+'][P_Venta]" value="'+p_venta+'" >'+p_venta+'</td><td name="tdSubtotal"><input type="hidden" name="subtotal_ob" value="'+(cantidad*p_venta)+'" id="subtotals">'+(cantidad*p_venta)+'</td><td><button type="button" class="btn btn-danger" onclick="eliminar('+contador+');"><li class="fa fa-trash"></li></button></td></tr>';
 	                       		    contador++;
-								    limpiar();
-								    $('#total').html("$"+' '+total);
-							        verificar();
 							        //$('#stock').val(stock-cantidad);
 							        $('#carrito').append(tfila);
-							        stock -= cantidad;
-							        producto.val(idproducto+"_"+stock+"_"+p_venta);
+					   		}
+					   		else{
 
-					   }
-					   else if(cantidad<=stock && esProductoAgregado){
-					   	    stock -= cantidad;
-					   		//Actualiza el atributo valor del option seleccionado
-					   		producto.val(idproducto+"_"+stock+"_"+p_venta);
-					   		//Actualiza los campos en la fila
-					   		var fila = $("#carrito > tbody").find("[data-id='"+producto.attr('data-id')+"']").first('tr');
-					   		//Actualiza td Cantidad
-					   		var cantidadAnterior = fila.find("[name='tdCantidad']").find("input").first().val();
-					   		var posicionCantidad = fila.find("[name='tdCantidad']").find("input").first().attr("name");
+						   		//Actualiza los campos en la fila
+						   		var fila = $("#carrito > tbody").find("[data-id='"+producto.attr('data-id')+"']").first('tr');
+						   		//Actualiza td Cantidad
+						   		var cantidadAnterior = fila.find("[name='tdCantidad']").find("input").first().val();
+						   		var posicionCantidad = fila.find("[name='tdCantidad']").find("input").first().attr("name");
 
-					   		fila.find("[name='tdCantidad']").html(
-					   			'<td name="tdCantidad"><input type="hidden" name="'+posicionCantidad+'" value="'+ (parseInt(cantidadAnterior) + parseInt(cantidad))+'" id="cantidadc">'+ (parseInt(cantidadAnterior) + parseInt(cantidad))+'</td>');
+						   		fila.find("[name='tdCantidad']").html(
+						   			'<td name="tdCantidad"><input type="hidden" name="'+posicionCantidad+'" value="'+ (parseInt(cantidadAnterior) + parseInt(cantidad))+'" id="cantidadc">'+ (parseInt(cantidadAnterior) + parseInt(cantidad))+'</td>');
 
-					   		var SubtotalAnterior = fila.find("[name='tdSubtotal']").find("input").first().val();
-					   		var pocisionSubtotal = fila.find("[name='tdSubtotal']").find("input").first().attr("name");
-					   		var nuevoSubtotal = parseInt(SubtotalAnterior) + (cantidad*p_venta);
+						   		SubtotalAnterior = fila.find("[name='tdSubtotal']").find("input").first().val();
+						   		var pocisionSubtotal = fila.find("[name='tdSubtotal']").find("input").first().attr("name");
+						   		var nuevoSubtotal = parseInt(SubtotalAnterior) + (cantidad*p_venta);
 
-					   		fila.find("[name='tdSubtotal']").html(
-					   			'<td name="tdSubtotal"><input type="hidden" name="'+pocisionSubtotal+'" value="'+ nuevoSubtotal+'" id="subtotals">'+nuevoSubtotal+'</td>');
-
-                             limpiar();
-                             $('#total').html("$"+' '+total);
-							 verificar();
-							
-
-
+						   		fila.find("[name='tdSubtotal']").html(
+						   			'<td name="tdSubtotal"><input type="hidden" name="'+pocisionSubtotal+'" value="'+ nuevoSubtotal+'" id="subtotals">'+nuevoSubtotal+'</td>');
+					   		}
+					   		SubtotalAnterior = parseInt(SubtotalAnterior == undefined ? 0 : SubtotalAnterior);
+					   		total += cantidad*p_venta;
+                     		limpiar();
+                     		$('#total').html("$"+' '+total);
+					 		verificar();
 					   }
 					   else
 					   {
@@ -283,7 +274,7 @@
 					   	
 					   }
 
-					   $('#stock').val(stock);
+					   
 
  				}else
  				{
@@ -347,6 +338,7 @@
 	   	var stock=parseInt(valores[1]);
 	   	var p_venta=parseInt(valores[2]);
    		var fila = $("#carrito > tbody").find("[data-id='"+idProducto+"']").first('tr');
+   		fila.attr("style", 'background-color:red');
    		var cantidadABorrar = fila.find("[name='tdCantidad']").find("input").first().val();
 	   	stock += parseInt(cantidadABorrar);
 	   	producto.val(idProducto+"_"+stock+"_"+p_venta);
